@@ -1,28 +1,23 @@
-#!/usr/bin/python
+#! python3
+#!/usr/bin/env python3
 #fasta2tab.py
 #By: Gabriel Kigundu
-#gabrielKigundu@gmail.com
+#gabrielkigundu@gmail.com
 #Kennesaw State University
 #September 27, 2016
 
 docstring= """
-#tab2fasta.py
+#fasta2tab.py
 #By: Gabriel Kigundu
-#gabrielKigundu@gmail.com
+#gabrielkigundu@gmail.com
 #Kennesaw State University
 #September 27, 2016
-
 DESCRIPTION
-
 Converts FASTA to tab delimited
-
 This script converts fasta file to a a 2 column (text based) tab delimited file.
 
-"""
-"""
 USAGE:
-python tab2fasta.py -i <tab-file> -o <outfile>
-
+python fasta2tab.py -i <fasta-file> -o <tab-file>
 output is optional
 input required as file or stdin
 """
@@ -30,56 +25,49 @@ input required as file or stdin
 import sys
 import argparse
 from argparse import RawDescriptionHelpFormatter
+import os
 
 infile=''
-outfile=''
-readfile=False
-writefile = False
 
 parser = argparse.ArgumentParser(description=docstring, formatter_class=RawDescriptionHelpFormatter)
 parser.add_argument('-o', '-out', '--output', help='Output file name', required=False)
 
-## show values ##
+#check stdin and set input
 if not sys.stdin.isatty():
-    infile = sys.stdin
+    inFile = sys.stdin
     parser.add_argument('-i','-in','--input', help='Input file name',required=False)
 else:
     parser.add_argument('-i','-in','--input', help='Input file name',required=True)
-    readfile = True
-    infile = open(parser.parse_args().input, 'r')
+    inFile = parser.parse_args().input
+    if not os.path.exists(inFile):
+        sys.exit("Input file not found: " + inFile)
     
 args = parser.parse_args()
 
+output = []
+with open(inFile, 'r') as infile:
+	line = infile.readline()
+	while(True):
+		fastaSeq = ""
+		if line.startswith('>'):
+			fastaSeq += line.strip() + '\t'
+			line=infile.readline()
+			while( True):
+				if line.startswith('>') or not line:
+					break
+				else:
+					fastaSeq += line
+				line=infile.readline()
+			fastaSeq += '\n'
+			output.append(fastaSeq)
+		if not line:
+			break
+
 if args.output is not None:
-    writefile = True
-    outfile = open(args.output, 'w')
-
-
-out_lines = []
-temp_line = ''
-
-for line in infile:
-        if line.startswith('>'):
-            if len(out_lines) >0:
-                temp_line+= '\n'
-            out_lines.append(temp_line)
-            temp_line = line.strip() + '\t'
-        else:
-            temp_line += line.strip()
-if len(out_lines) >0:
-    temp_line+= '\n'
-    out_lines.append(temp_line)
-if writefile:
-    for line in out_lines:
-	outfile.write(line)
+	with open(args.output, 'w') as outFile:
+		for line in output:
+			outfile.write(line)
+	sys.exit("fasta2tab.py complete" )
 else:
-    f
-        ##print out_lines, '\n'
-
-if readfile:
-    print ("Input file: %s" % args.input )
-    infile.close()
-if writefile:
-    print ("Output file: %s" % args.output )
-    outfile.close()
-sys.exit("fasta2tab.py complete" )
+    for line in output:
+        print(line)
