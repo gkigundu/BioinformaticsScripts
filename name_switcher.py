@@ -13,12 +13,12 @@ docstring= """
 #September 27, 2016
 DESCRIPTION
 switch accession with provided accession or given provided a tab delimited file with accession, name as first 2 columns
-"""
-"""
+
 USAGE:
-python name_switch.py -i <fasta-file> -a <accession-file> -o <outfile>
+python name_switch.py -i <input-file> -a <accession-file> -o <output-file>
 output is optional
 input required as file or stdin
+accession-file is required
 """
 
 import sys
@@ -27,8 +27,6 @@ from argparse import RawDescriptionHelpFormatter
 import os
 
 inFile=''
-writeFile = False
-switched=[]
 
 parser = argparse.ArgumentParser(description=docstring, formatter_class=RawDescriptionHelpFormatter)
 parser.add_argument('-o', '-out', '--output', help='Output file name', required=False)
@@ -39,15 +37,12 @@ if not sys.stdin.isatty():
 else:
     parser.add_argument('-i','-in','--input', help='Input file name',required=True)
     inFile = parser.parse_args().input
-	if not os.path.exists(inFile):
-		sys.exit("Input file does not exist!!")
+    if not os.path.exists(inFile):
+	    sys.exit("Input file does not exist!!")
     
 args = parser.parse_args()
 
-if args.output is not None:
-    writeFile = True
-	if not os.path.exists(args.accession):
-		sys.exit("Output file does not exist")
+
    
 #add accessions to dictionary
 if not os.path.exists(args.accession):
@@ -64,6 +59,7 @@ with open(args.accession, 'r') as nameFile:
 					nameSet[line[0]] = line[1]
 
 #read input file line by line and replace all occurrences of accessions in file
+switched=[]
 with open(inFile, 'r') as infile:
 	for line in infile:
 		if len(line)>0:
@@ -73,11 +69,11 @@ with open(inFile, 'r') as infile:
 					line = line[:index] + nameSet[accession] + line[index+len(accession):]
 			switched.append(line)
 #write to file or print to screen
-if writeFile:
+if args.output is not None:
 	with open(args.output, 'w') as outFile:
 		for line in switched:
 			outFile.write(line)
 	sys.exit("name_switch.py complete" )
 else:
     for line in switched:
-        print line.strip()
+        print (line.strip())
