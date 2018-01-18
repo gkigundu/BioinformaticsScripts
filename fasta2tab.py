@@ -41,33 +41,32 @@ else:
     inFile = parser.parse_args().input
     if not os.path.exists(inFile):
         sys.exit("Input file not found: " + inFile)
-    
 args = parser.parse_args()
 
 output = []
 with open(inFile, 'r') as infile:
-	line = infile.readline()
-	while(True):
-		fastaSeq = ""
-		if line.startswith('>'):
-			fastaSeq += line.strip() + '\t'
-			line=infile.readline()
-			while( True):
-				if line.startswith('>') or not line:
-					break
-				else:
-					fastaSeq += line.strip()
-				line=infile.readline()
-			fastaSeq += '\n'
-			output.append(fastaSeq)
-		if not line:
-			break
+    line = infile.readline()
+    while(True):
+        fastaSeq = ""
+        if line.startswith('>'):
+            fastaSeq += line.strip()[1:] + '\t'
+            line=infile.readline()
+            while( True):
+                if line.startswith('>') or not line:
+                    break
+                else:
+                    fastaSeq += line.strip()
+                line=infile.readline()
+            fastaSeq += '\n'
+            output.append(fastaSeq)
+        if not line:
+            break
 
 if args.output is not None:
-	with open(args.output, 'w') as outFile:
-		for line in output:
-			outfile.write(line)
-	sys.exit("fasta2tab.py complete" )
+    with open(args.output, 'w') as outFile:
+        for line in output:
+            outFile.write(line)
+    sys.exit("fasta2tab.py complete" )
 else:
     for line in output:
         print(line)
