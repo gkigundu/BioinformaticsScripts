@@ -56,7 +56,7 @@ with open(inFile, 'r') as infile:
 				if line.startswith('>') or not line:
 					break
 				else:
-					fastaSeq += line
+					fastaSeq += line.strip()
 				line=infile.readline()
 			fastaSeq += '\n'
 			output.append(fastaSeq)
